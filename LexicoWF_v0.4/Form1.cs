@@ -36,123 +36,158 @@ namespace LexicoWF
             }
         }
 
+
+        public void SetTerminaPrograma(int terminaProg)
+        {
+            terminaPrograma = terminaProg;
+        }
         public Tokens AnalisadorLexical(string conteudo)
         {
             //salvar código do rich em arquivo (fazer)
             //MessageBox.Show("c");
-
-
-            do
+            if (terminaPrograma == 0)
             {
-                int j = 0;
 
-                char caracter;
-                //MessageBox.Show(indiceTexto.ToString());
+                do
+                {
+                    int j = 0;
 
-                //MessageBox.Show("e");
+                    char caracter;
+                    //MessageBox.Show(indiceTexto.ToString());
+
+                    //MessageBox.Show("e");
 
                     caracter = conteudo[indiceTexto];   //ler caracter
- 
-
-
-
-                //MessageBox.Show("1"+caracter.ToString(), indiceTexto.ToString());
-                //indiceTexto++;
-
-
-                while ((char.IsWhiteSpace(caracter) || caracter == '\n') && indiceTexto + 1 < conteudo.Length)
-                {
-                    //MessageBox.Show("vazio: "+ caracter.ToString(), indiceTexto.ToString());
-
-                    indiceTexto++;
-                    caracter = conteudo[indiceTexto];
-                    //MessageBox.Show(caracter.ToString(), indiceTexto.ToString());
-
-
-                }
-
-                while (j < conteudo.Length)
-                {
-
-                    if (caracter == '{' || caracter == ' ')
+                    if (caracter == '\n')
                     {
-                        
-                        if (caracter == '{')
+                        linhaTexto++;
+                        //MessageBox.Show(linhaTexto.ToString());
+                    }
+
+
+
+                    //MessageBox.Show("1"+caracter.ToString(), indiceTexto.ToString());
+                    //indiceTexto++;
+
+
+                    while ((char.IsWhiteSpace(caracter) || caracter == '\n') && indiceTexto + 1 < conteudo.Length)
+                    {
+                        //MessageBox.Show("vazio: "+ caracter.ToString(), indiceTexto.ToString());
+
+                        indiceTexto++;
+                        caracter = conteudo[indiceTexto];
+
+                        if (caracter == '\n')
                         {
-                            int achouChave = 0;
-                            while (caracter != '}') //&& terminaPrograma != 1
+                            linhaTexto++;
+                            //MessageBox.Show(linhaTexto.ToString());
+                        }
+                        //MessageBox.Show(caracter.ToString(), indiceTexto.ToString());
+
+
+                    }
+
+                    while (j < conteudo.Length)
+                    {
+
+                        if (caracter == '{' || caracter == ' ')
+                        {
+
+                            if (caracter == '{')
                             {
-                                if (caracter == '\n')
+                                int achouChave = 0;
+                                while (caracter != '}' && terminaPrograma != 1) //&& terminaPrograma != 1
                                 {
-                                    linhaTexto++;
+                                    if (caracter == '\n')
+                                    {
+                                        linhaTexto++;
+                                       // MessageBox.Show(linhaTexto.ToString());
+                                    }
+
+                                    if (indiceTexto + 1 < conteudo.Length)
+                                    {
+                                        indiceTexto++;
+                                        caracter = conteudo[indiceTexto];
+                                        if (caracter == '\n')
+                                        {
+                                            linhaTexto++;
+                                            //MessageBox.Show(linhaTexto.ToString());
+                                        }
+                                        if (caracter == '}')
+                                        {
+
+                                            achouChave = 1;
+                                        }
+
+                                    }
+
+                                    if (indiceTexto == conteudo.Length - 1)
+                                    {
+                                        terminaPrograma = 1;
+                                    }
+
                                 }
 
-                                if (indiceTexto + 1 < conteudo.Length)
+                                if (achouChave == 0)
+                                {
+                                    linhaTexto--;
+                                    TrataErro('{');
+                                    terminaPrograma = 1;
+                                }
+
+                                if (achouChave == 1 && terminaPrograma == 0)
                                 {
                                     indiceTexto++;
                                     caracter = conteudo[indiceTexto];
 
-                                    if (caracter == '}')
+                                    if (caracter == '\n')
                                     {
-
-                                        achouChave = 1;
+                                        linhaTexto++;
+                                        //MessageBox.Show(linhaTexto.ToString());
                                     }
 
                                 }
-                                
-                                if(indiceTexto == conteudo.Length-1)
+                                //indiceTexto++;
+                                //caracter = conteudo[indiceTexto];
+                            }
+
+                            while ((char.IsWhiteSpace(caracter) || caracter == '\n') && indiceTexto + 1 < conteudo.Length)
+                            {
+
+                                indiceTexto++;
+                                caracter = conteudo[indiceTexto];
+                                if (caracter == '\n')
                                 {
-                                    terminaPrograma = 1;
+                                    linhaTexto++;
+                                    //MessageBox.Show(linhaTexto.ToString());
                                 }
-
                             }
-
-                            if(achouChave == 0)
-                            {
-                                linhaTexto--;
-                                TrataErro('{');
-                                //terminaPrograma = 1;
-                            }
-
-                            if (achouChave == 1) 
-                            {
-                                indiceTexto++;
-                                caracter = conteudo[indiceTexto];
-
-
-                            }
-                            //indiceTexto++;
-                            //caracter = conteudo[indiceTexto];
                         }
-
-                        while ((char.IsWhiteSpace(caracter) || caracter == '\n') && indiceTexto+1 < conteudo.Length)
-                        {
-                                
-                                indiceTexto++;
-                                caracter = conteudo[indiceTexto];
-
-                        }
+                        j++;
                     }
-                    j++;
-                }
-                
 
-                if (caracter == '\n')
-                {
-                    //indiceTexto++;
-                    linhaTexto++;
-                }
 
-                if (terminaPrograma != 1)
-                {
-                    indiceTexto++;
-                    return PegaToken(caracter, conteudo);
-                    
-                }
+                    if (caracter == '\n')
+                    {
+                        //indiceTexto++;
+                        linhaTexto++;
+                    }
 
-            } while (indiceTexto < conteudo.Length && terminaPrograma == 0);
+                    if (terminaPrograma != 1)
+                    {
+                        indiceTexto++;
+                        return PegaToken(caracter, conteudo);
 
-            return token;
+                    }
+
+                } while (indiceTexto < conteudo.Length && terminaPrograma == 0);
+
+                return token;
+            }
+            else
+            {
+                return token;
+            }
         }
 
 
@@ -595,6 +630,22 @@ namespace LexicoWF
                     dataGridView1.Rows.Add(new object[] { linhaTexto, "sbooleano", id });
                     return token;
 
+                case "nteiro": //VER NA PROXIMA SPRINT
+
+                    token.lexema = id;
+                    token.simbolo = "sinteiro";
+                    token.numLinha = linhaTexto;
+                    dataGridView1.Rows.Add(new object[] { linhaTexto, "sinteiro", id });
+                    return token;
+
+                case "ooleano": //VER NA PROXIMA SPRINT
+
+                    token.lexema = id;
+                    token.simbolo = "sbooleano";
+                    token.numLinha = linhaTexto;
+                    dataGridView1.Rows.Add(new object[] { linhaTexto, "sbooleano", id });
+                    return token;
+
                 case "verdadeiro":
 
                     token.lexema = id;
@@ -703,7 +754,7 @@ namespace LexicoWF
             //indiceTexto = 0;
             terminaPrograma = 0;
             linhaTexto = 1;
-            if (richTextBox1.Text.Length > 0)
+            if (richTextBox1.Text.Length > 0 )
             {
                 //MessageBox.Show(richTextBox1.Text);
                 conteudo = richTextBox1.Text;
@@ -731,86 +782,118 @@ namespace LexicoWF
 
     }
 
-    public class Sintatico
+    public  class Sintatico
     {
         private Tokens token;
         public Lexico analiseLex = new Lexico();
-
+       // public DataGridView dt_erros;
+       private int terminaProgramaSintatico = 0;
         public void Main(string conteudo)
         {
-            token = analiseLex.AnalisadorLexical(conteudo);
+            //dt_erros = dt2;
 
-            if (string.Equals(token.simbolo, "sprograma"))
-            {
                 token = analiseLex.AnalisadorLexical(conteudo);
 
-                if (string.Equals(token.simbolo, "sidentificador"))
+                if (string.Equals(token.simbolo, "sprograma"))
                 {
                     token = analiseLex.AnalisadorLexical(conteudo);
 
-                    if (string.Equals(token.simbolo, "sponto_virgula"))
+                    if (string.Equals(token.simbolo, "sidentificador"))
                     {
-                        Analisa_bloco(conteudo);
-                        //token = analiseLex.AnalisadorLexical(conteudo);
-                        if (string.Equals(token.simbolo, "sponto"))
+                        token = analiseLex.AnalisadorLexical(conteudo);
+
+                        if (string.Equals(token.simbolo, "sponto_virgula"))
                         {
-                            MessageBox.Show("Acabou programa, SUCESSO");
+                            Analisa_bloco(conteudo);
+                            //token = analiseLex.AnalisadorLexical(conteudo);
+                            if (string.Equals(token.simbolo, "sponto"))
+                            {
+                                TrataErroSintatico("Programa Terminou");
+                                //MessageBox.Show("Acabou programa, SUCESSO");
+                            }
+                            else
+                            {
+                                TrataErroSintatico("Erro: esperado '.'");
+
+                                //MessageBox.Show("Erro: Faltando ponto");
+                            }
                         }
                         else
                         {
-                            MessageBox.Show("Erro: Faltando ponto");
+                            TrataErroSintatico("Erro: esperado ';'");
+                            // MessageBox.Show("Erro: Faltando ponto_virgula");
                         }
                     }
                     else
                     {
-                        MessageBox.Show("Erro: Faltando ponto_virgula");
+                        TrataErroSintatico("Erro: esperado 'identificador'");
+                        // MessageBox.Show("Erro: Faltando identificador");
                     }
                 }
                 else
                 {
-                    MessageBox.Show("Erro: Faltando identificador");
+                    TrataErroSintatico("Erro: esperado 'programa'");
+
+                    //MessageBox.Show("Erro: Faltando programa");
                 }
-            }
-            else
-            {
-                MessageBox.Show("Erro: Faltando programa");
-            }
+            
         }
+
+        private void TrataErroSintatico(string mensagem)
+        {
+            if (terminaProgramaSintatico == 0)
+            {
+                MessageBox.Show(mensagem,"linha "+token.numLinha);
+                terminaProgramaSintatico = 1;
+                //analiseLex.SetTerminaPrograma(terminaProgramaSintatico);
+
+            }
+           //dt_erros.Rows.Add(new object[] { token.numLinha, mensagem });
+
+        }
+
 
         private void Analisa_bloco(string conteudo)
         {
-            token = analiseLex.AnalisadorLexical(conteudo);
-            Analisa_et_variaveis(conteudo);
-            Analisa_subrotinas(conteudo);
-            Analisa_comandos(conteudo);
+
+                token = analiseLex.AnalisadorLexical(conteudo);
+            if (terminaProgramaSintatico == 0)
+                Analisa_et_variaveis(conteudo);
+            if(terminaProgramaSintatico==0)
+                Analisa_subrotinas(conteudo);
+            if (terminaProgramaSintatico == 0)
+                Analisa_comandos(conteudo);
+            
         }
 
         private void Analisa_et_variaveis(string conteudo)
         {
-            if (string.Equals(token.simbolo, "svar"))
+            if (string.Equals(token.simbolo, "svar") && terminaProgramaSintatico == 0)
             {
                 token = analiseLex.AnalisadorLexical(conteudo);
 
-                if (string.Equals(token.simbolo, "sidentificador"))
+                if (string.Equals(token.simbolo, "sidentificador") && terminaProgramaSintatico == 0)
                 {
-                    while (string.Equals(token.simbolo, "sidentificador"))
+                    while (string.Equals(token.simbolo, "sidentificador") && terminaProgramaSintatico == 0)
                     {
                         Analisa_variaveis(conteudo);
 
-                        if (string.Equals(token.simbolo, "sponto_virgula"))
+                        if (string.Equals(token.simbolo, "sponto_virgula") && terminaProgramaSintatico == 0)
                         {
                             token = analiseLex.AnalisadorLexical(conteudo);
 
                         }
                         else
                         {
-                            MessageBox.Show("Erro (Analisa_et_variaveis): Faltando Ponto e Virgula");
+                            TrataErroSintatico("Erro: esperado ';'");
+                           // MessageBox.Show("Erro (Analisa_et_variaveis): Faltando Ponto e Virgula");
                         }
                     }
                 }
                 else
                 {
-                    MessageBox.Show("Erro (Analisa_et_variaveis): Esperado Identificador");
+                    TrataErroSintatico("Erro: esperado 'identificador'");
+                    //MessageBox.Show("Erro (Analisa_et_variaveis): Esperado Identificador");
                 }
 
             }
@@ -821,32 +904,35 @@ namespace LexicoWF
         {
             do
             {
-                if (string.Equals(token.simbolo, "sidentificador"))
+                if (string.Equals(token.simbolo, "sidentificador") && terminaProgramaSintatico == 0)
                 {
                     token = analiseLex.AnalisadorLexical(conteudo);
 
-                    if (string.Equals(token.simbolo, "svirgula") || string.Equals(token.simbolo, "sdoispontos"))
+                    if (string.Equals(token.simbolo, "svirgula") || string.Equals(token.simbolo, "sdoispontos") && terminaProgramaSintatico == 0)
                     {
-                        if (string.Equals(token.simbolo, "svirgula"))
+                        if (string.Equals(token.simbolo, "svirgula") && terminaProgramaSintatico == 0)
                         {
                             token = analiseLex.AnalisadorLexical(conteudo);
 
-                            if (string.Equals(token.simbolo, "sdoispontos"))
+                            if (string.Equals(token.simbolo, "sdoispontos") && terminaProgramaSintatico == 0)
                             {
-                                MessageBox.Show("Erro (Analisa_variaveis): Doispontos após a virgula");
+                                TrataErroSintatico("Erro: esperado ':' após ','");
+                                //MessageBox.Show("Erro (Analisa_variaveis): Doispontos após a virgula");
                             }
                         }
                     }
                     else
                     {
-                        MessageBox.Show("Erro (Analisa_variaveis): Esperado doispontos ou virgula");
+                        TrataErroSintatico("Erro: esperado ':' ou ','");
+                       // MessageBox.Show("Erro (Analisa_variaveis): Esperado doispontos ou virgula");
                     }
                 }
                 else
                 {
-                    MessageBox.Show("Erro (Analisa_variaveis): Esperado identificador");
+                    TrataErroSintatico("Erro: esperado 'identificador'");
+                   // MessageBox.Show("Erro (Analisa_variaveis): Esperado identificador");
                 }
-            } while (!(string.Equals(token.simbolo, "sdoispontos")));
+            } while (!(string.Equals(token.simbolo, "sdoispontos")) && terminaProgramaSintatico==0);
 
             token = analiseLex.AnalisadorLexical(conteudo);
             Analisa_tipo(conteudo);
@@ -854,9 +940,10 @@ namespace LexicoWF
 
         private void Analisa_tipo(string conteudo)
         {
-            if (!(string.Equals(token.simbolo, "sinteiro")) && !(string.Equals(token.simbolo, "sbooleano")))
+            if (!(string.Equals(token.simbolo, "sinteiro")) && !(string.Equals(token.simbolo, "sbooleano")) && terminaProgramaSintatico == 0)
             {
-                MessageBox.Show("Erro (Analisa_tipo): Necessario tipo ser inteiro ou booleano");
+                TrataErroSintatico("Erro: esperado 'inteiro' ou 'booleano'");
+                //MessageBox.Show("Erro (Analisa_tipo): Necessario tipo ser inteiro ou booleano");
             }
             else
             {
@@ -866,19 +953,19 @@ namespace LexicoWF
 
         private void Analisa_comandos(string conteudo)
         {
-            if (string.Equals(token.simbolo, "sinicio"))
+            if (string.Equals(token.simbolo, "sinicio") && terminaProgramaSintatico == 0)
             {
                 token = analiseLex.AnalisadorLexical(conteudo);
                 //MessageBox.Show("1 Analisa_comandos: " + token.simbolo, token.lexema);
                 Analisa_comando_simples(conteudo);
                 //MessageBox.Show("2 Analisa_comandos: " + token.simbolo, token.lexema);
 
-                while(!(string.Equals(token.simbolo, "sfim")))
+                while(!(string.Equals(token.simbolo, "sfim")) && terminaProgramaSintatico == 0)
                 {
-                    if (string.Equals(token.simbolo, "sponto_virgula"))
+                    if (string.Equals(token.simbolo, "sponto_virgula") && terminaProgramaSintatico == 0)
                     {
                         token = analiseLex.AnalisadorLexical(conteudo);
-                        if (!(string.Equals(token.simbolo, "sfim")))
+                        if (!(string.Equals(token.simbolo, "sfim")) && terminaProgramaSintatico == 0)
                         {
                             Analisa_comando_simples(conteudo);
                         }
@@ -886,14 +973,17 @@ namespace LexicoWF
                     else
                     {
                         //token = analiseLex.AnalisadorLexical(conteudo);
-                        MessageBox.Show("Erro (Analisa_comandos): Faltando ponto_virgula. " + token.simbolo, token.lexema);
+                        TrataErroSintatico("Erro: esperado ';'");
+                        //MessageBox.Show("Erro (Analisa_comandos): Faltando ponto_virgula. " + token.simbolo, token.lexema);
                     }
                 }
                 token = analiseLex.AnalisadorLexical(conteudo);
             }
             else
             {
-                    MessageBox.Show("Erro (Analisa_comandos): Faltando inicio");
+                TrataErroSintatico("Erro: esperado 'inicio'");
+
+                //MessageBox.Show("Erro (Analisa_comandos): Faltando inicio");
             }
 
         }
@@ -902,36 +992,37 @@ namespace LexicoWF
         {
             //MessageBox.Show("1 Analisa_comando_simples: " + token.simbolo, token.lexema);
 
-            if (string.Equals(token.simbolo, "sidentificador"))
+            if (string.Equals(token.simbolo, "sidentificador") && terminaProgramaSintatico == 0)
             {
                 Analisa_atrib_chprocedimento(conteudo);
             }
-            else if (string.Equals(token.simbolo, "sse"))
+            else if (string.Equals(token.simbolo, "sse") && terminaProgramaSintatico == 0)
             {
                 Analisa_se(conteudo);
             }
-            else if (string.Equals(token.simbolo, "senquanto"))
+            else if (string.Equals(token.simbolo, "senquanto") && terminaProgramaSintatico == 0)
             {
                 Analisa_enquanto(conteudo);
             }
-            else if (string.Equals(token.simbolo, "sleia"))
+            else if (string.Equals(token.simbolo, "sleia") && terminaProgramaSintatico == 0)
             {
                 Analisa_leia(conteudo);
             }
-            else if (string.Equals(token.simbolo, "sescreva"))
+            else if (string.Equals(token.simbolo, "sescreva") && terminaProgramaSintatico == 0)
             {
                 Analisa_escreva(conteudo);
             }
             else
             {
-                Analisa_comandos(conteudo);
+                if(terminaProgramaSintatico == 0)
+                    Analisa_comandos(conteudo);
             }
         }
 
         private void Analisa_atrib_chprocedimento(string conteudo)
         {
             token = analiseLex.AnalisadorLexical(conteudo);
-            if (string.Equals(token.simbolo, "satribuicao"))
+            if (string.Equals(token.simbolo, "satribuicao") && terminaProgramaSintatico == 0)
             {
                 Analisa_atribuicao(conteudo);
             }
@@ -945,30 +1036,35 @@ namespace LexicoWF
         private void Analisa_leia(string conteudo)
         {
             token = analiseLex.AnalisadorLexical(conteudo);
-            if (string.Equals(token.simbolo, "sabre_parenteses"))
+            if (string.Equals(token.simbolo, "sabre_parenteses") && terminaProgramaSintatico == 0)
             {
                 token = analiseLex.AnalisadorLexical(conteudo);
-                if (string.Equals(token.simbolo, "sidentificador"))
+                if (string.Equals(token.simbolo, "sidentificador") && terminaProgramaSintatico == 0)
                 {
                     token = analiseLex.AnalisadorLexical(conteudo);
 
-                    if (string.Equals(token.simbolo, "sfecha_parenteses"))
+                    if (string.Equals(token.simbolo, "sfecha_parenteses") && terminaProgramaSintatico == 0)
                     {
                         token = analiseLex.AnalisadorLexical(conteudo);
                     }
                     else
                     {
-                        MessageBox.Show("Erro (Analisa_leia): Esperado fecha_parenteses");
+                        TrataErroSintatico("Erro: esperado ')'");
+
+                        //MessageBox.Show("Erro (Analisa_leia): Esperado fecha_parenteses");
                     }
                 }
                 else
                 {
-                    MessageBox.Show("Erro (Analisa_leia): Esperado identificador");
+                    TrataErroSintatico("Erro: esperado 'identificador'");
+
+                    //MessageBox.Show("Erro (Analisa_leia): Esperado identificador");
                 }
             }
             else
             {
-                MessageBox.Show("Erro(Analisa_leia): Esperado abre_parenteses");
+                TrataErroSintatico("Erro: esperado '('");
+               // MessageBox.Show("Erro(Analisa_leia): Esperado abre_parenteses");
             }
         }
 
@@ -977,29 +1073,34 @@ namespace LexicoWF
         {
             token = analiseLex.AnalisadorLexical(conteudo);
 
-            if (string.Equals(token.simbolo, "sabre_parenteses"))
+            if (string.Equals(token.simbolo, "sabre_parenteses") && terminaProgramaSintatico == 0)
             {
                 token = analiseLex.AnalisadorLexical(conteudo);
-                if (string.Equals(token.simbolo, "sidentificador"))
+                if (string.Equals(token.simbolo, "sidentificador") && terminaProgramaSintatico == 0)
                 {
                     token = analiseLex.AnalisadorLexical(conteudo);
-                    if (string.Equals(token.simbolo, "sfecha_parenteses"))
+                    if (string.Equals(token.simbolo, "sfecha_parenteses") && terminaProgramaSintatico == 0)
                     {
                         token = analiseLex.AnalisadorLexical(conteudo);
                     }
                     else
                     {
-                        MessageBox.Show("Erro (Analisa_escreva): Esperado fecha_parenteses");
+                        TrataErroSintatico("Erro: esperado ')'");
+                        //MessageBox.Show("Erro (Analisa_escreva): Esperado fecha_parenteses");
                     }
                 }
                 else
                 {
-                    MessageBox.Show("Erro (Analisa_escreva): Esperado identificador");
+                    TrataErroSintatico("Erro: esperado 'identificador'");
+
+                  // MessageBox.Show("Erro (Analisa_escreva): Esperado identificador");
                 }
             }
             else
             {
-                MessageBox.Show("Erro (Analisa_escreva): Esperado abre_parenteses");
+                TrataErroSintatico("Erro: esperado '('");
+
+                //MessageBox.Show("Erro (Analisa_escreva): Esperado abre_parenteses");
             }
 
         }
@@ -1013,7 +1114,7 @@ namespace LexicoWF
 
             //MessageBox.Show("4 Enquanto " + token.simbolo, token.lexema);
 
-            if (string.Equals(token.simbolo, "sfaca"))
+            if (string.Equals(token.simbolo, "sfaca") && terminaProgramaSintatico == 0)
             {
                 token = analiseLex.AnalisadorLexical(conteudo);
                 //MessageBox.Show("4 Enquanto " + token.simbolo, token.lexema);
@@ -1024,7 +1125,9 @@ namespace LexicoWF
             }
             else
             {
-                MessageBox.Show("Erro (Analisa_enquanto): Esperado faça");
+                TrataErroSintatico("Erro: esperado 'faca'");
+
+              //  MessageBox.Show("Erro (Analisa_enquanto): Esperado faça");
             }
         }
 
@@ -1037,7 +1140,7 @@ namespace LexicoWF
             //token = analiseLex.AnalisadorLexical(conteudo);
             //MessageBox.Show("Analisa_se: " + token.simbolo, token.lexema);
 
-            if (string.Equals(token.simbolo, "sentao"))
+            if (string.Equals(token.simbolo, "sentao") && terminaProgramaSintatico == 0)
             {
                 token = analiseLex.AnalisadorLexical(conteudo);
                 Analisa_comando_simples(conteudo);
@@ -1050,16 +1153,18 @@ namespace LexicoWF
             }
             else
             {
-                MessageBox.Show("Erro (Analisa_se): Esperado um entao");
+                TrataErroSintatico("Erro: esperado 'entao'");
+
+               // MessageBox.Show("Erro (Analisa_se): Esperado um entao");
             }
         }
 
         private void Analisa_subrotinas(string conteudo)
         {
-            while (string.Equals(token.simbolo, "sprocedimento") || string.Equals(token.simbolo, "sfuncao"))
+            while (string.Equals(token.simbolo, "sprocedimento") || string.Equals(token.simbolo, "sfuncao") && terminaProgramaSintatico == 0)
             {
 
-                if (string.Equals(token.simbolo, "sprocedimento"))
+                if (string.Equals(token.simbolo, "sprocedimento") && terminaProgramaSintatico == 0)
                 {
                     Analisa_declaracao_procedimento(conteudo);
                 }
@@ -1069,13 +1174,15 @@ namespace LexicoWF
                 }
 
                 //token = analiseLex.AnalisadorLexical(conteudo);
-                if (string.Equals(token.simbolo, "sponto_virgula"))
+                if (string.Equals(token.simbolo, "sponto_virgula") && terminaProgramaSintatico == 0)
                 {
                     token = analiseLex.AnalisadorLexical(conteudo);
                 }
                 else
                 {
-                    MessageBox.Show("Erro (Analisa_subrotinas): Esperado um ponto_virgula ", token.simbolo);
+                    TrataErroSintatico("Erro: esperado ';'");
+
+                   // MessageBox.Show("Erro (Analisa_subrotinas): Esperado um ponto_virgula ", token.simbolo);
                 }
             }
         }
@@ -1083,34 +1190,38 @@ namespace LexicoWF
         private void Analisa_declaracao_procedimento(string conteudo)
         {
             token = analiseLex.AnalisadorLexical(conteudo);
-            if (string.Equals(token.simbolo, "sidentificador"))
+            if (string.Equals(token.simbolo, "sidentificador") && terminaProgramaSintatico == 0)
             {
                 token = analiseLex.AnalisadorLexical(conteudo);
-                if (string.Equals(token.simbolo, "sponto_virgula"))
+                if (string.Equals(token.simbolo, "sponto_virgula") && terminaProgramaSintatico == 0)
                 {
                     Analisa_bloco(conteudo);
                 }
                 else
                 {
-                    MessageBox.Show("Erro (Analisa_declaracao_procedimento): Esperado um ponto_virgula");
+                    TrataErroSintatico("Erro: esperado ';'");
+
+                    //MessageBox.Show("Erro (Analisa_declaracao_procedimento): Esperado um ponto_virgula");
                 }
             }
             else
             {
-                MessageBox.Show("Erro (Analisa_declaracao_procedimento): Esperado um identificador");
+                TrataErroSintatico("Erro: esperado 'identificador'");
+
+                //MessageBox.Show("Erro (Analisa_declaracao_procedimento): Esperado um identificador");
             }
         }
 
         private void Analisa_declaracao_funcao(string conteudo)
         {
             token = analiseLex.AnalisadorLexical(conteudo);
-            if (string.Equals(token.simbolo, "sidentificador"))
+            if (string.Equals(token.simbolo, "sidentificador") && terminaProgramaSintatico == 0)
             {
                 token = analiseLex.AnalisadorLexical(conteudo);
-                if (string.Equals(token.simbolo, "sdoispontos"))
+                if (string.Equals(token.simbolo, "sdoispontos") && terminaProgramaSintatico == 0)
                 {
                     token = analiseLex.AnalisadorLexical(conteudo);
-                    if (string.Equals(token.simbolo, "sinteiro") || string.Equals(token.simbolo, "sbooleano"))
+                    if (string.Equals(token.simbolo, "sinteiro") || string.Equals(token.simbolo, "sbooleano") && terminaProgramaSintatico == 0)
                     {
                         token = analiseLex.AnalisadorLexical(conteudo);
                         if (string.Equals(token.simbolo, "sponto_virgula"))
@@ -1120,17 +1231,23 @@ namespace LexicoWF
                     }
                     else
                     {
-                        MessageBox.Show("Erro (Analisa_declaracao_funcao): Esperado um inteiro ou booleano");
+                        TrataErroSintatico("Erro: esperado 'inteiro' ou 'booleano'");
+
+                        //MessageBox.Show("Erro (Analisa_declaracao_funcao): Esperado um inteiro ou booleano");
                     }
                 }
                 else
                 {
-                    MessageBox.Show("Erro (Analisa_declaracao_funcao): Esperado um doispontos");
+                    TrataErroSintatico("Erro: esperado ':'");
+
+                    //MessageBox.Show("Erro (Analisa_declaracao_funcao): Esperado um doispontos");
                 }
             }
             else
             {
-                MessageBox.Show("Erro (Analisa_declaracao_funcao): Esperado um identificador");
+                TrataErroSintatico("Erro: esperado 'identificador'");
+
+               // MessageBox.Show("Erro (Analisa_declaracao_funcao): Esperado um identificador");
             }
         }
 
@@ -1138,7 +1255,7 @@ namespace LexicoWF
         {
             Analisa_expressao_simples(conteudo);
 
-            if (string.Equals(token.simbolo, "smaior") || string.Equals(token.simbolo, "smaiorig") || string.Equals(token.simbolo, "sig") || string.Equals(token.simbolo, "smenor") || string.Equals(token.simbolo, "smenorig") || string.Equals(token.simbolo, "sdif"))
+            if (string.Equals(token.simbolo, "smaior") || string.Equals(token.simbolo, "smaiorig") || string.Equals(token.simbolo, "sig") || string.Equals(token.simbolo, "smenor") || string.Equals(token.simbolo, "smenorig") || string.Equals(token.simbolo, "sdif") && terminaProgramaSintatico == 0)
             {
                 token = analiseLex.AnalisadorLexical(conteudo);
                 Analisa_expressao_simples(conteudo);
@@ -1147,78 +1264,94 @@ namespace LexicoWF
 
         private void Analisa_expressao_simples(string conteudo) //cuidado
         {
-            if (string.Equals(token.simbolo, "smais") || string.Equals(token.simbolo, "smenos"))
+            if (terminaProgramaSintatico == 0)
             {
-                token = analiseLex.AnalisadorLexical(conteudo);
-            }
-            Analisa_termo(conteudo);
-            while (string.Equals(token.simbolo, "smais") || string.Equals(token.simbolo, "smenos") || string.Equals(token.simbolo, "sou"))
-            {
+
+
+                if (string.Equals(token.simbolo, "smais") || string.Equals(token.simbolo, "smenos") && terminaProgramaSintatico == 0)
+                {
+                    token = analiseLex.AnalisadorLexical(conteudo);
+                }
+                Analisa_termo(conteudo);
+                while (string.Equals(token.simbolo, "smais") || string.Equals(token.simbolo, "smenos") || string.Equals(token.simbolo, "sou") && terminaProgramaSintatico == 0 )
+                {
                     token = analiseLex.AnalisadorLexical(conteudo);
                     Analisa_termo(conteudo);
+                }
             }
         }
 
         private void Analisa_termo(string conteudo)
         {
-            Analisa_fator(conteudo);
-            while (string.Equals(token.simbolo, "smult") || string.Equals(token.simbolo, "sdiv") || string.Equals(token.simbolo, "se"))
+            if (terminaProgramaSintatico == 0)
             {
-                token = analiseLex.AnalisadorLexical(conteudo);
                 Analisa_fator(conteudo);
+                while (string.Equals(token.simbolo, "smult") || string.Equals(token.simbolo, "sdiv") || string.Equals(token.simbolo, "se") && terminaProgramaSintatico == 0)
+                {
+                    token = analiseLex.AnalisadorLexical(conteudo);
+                    Analisa_fator(conteudo);
+                }
             }
         }
 
         private void Analisa_fator(string conteudo)
         {
             //MessageBox.Show("1 Analisa_fator: " + token.simbolo, token.lexema);
+            if (terminaProgramaSintatico == 0)
+            {
+                if (string.Equals(token.simbolo, "sidentificador") && terminaProgramaSintatico == 0)
+                {
+                    token = analiseLex.AnalisadorLexical(conteudo); //!!!!
 
-            if (string.Equals(token.simbolo, "sidentificador"))
-            {
-                token = analiseLex.AnalisadorLexical(conteudo); //!!!!
+                }
+                else if (string.Equals(token.simbolo, "snumero") && terminaProgramaSintatico == 0)
+                {
+                    token = analiseLex.AnalisadorLexical(conteudo);
+                }
+                else if (string.Equals(token.simbolo, "snao") && terminaProgramaSintatico == 0)
+                {
+                    token = analiseLex.AnalisadorLexical(conteudo);
+                    Analisa_fator(conteudo);
+                }
+                else if (string.Equals(token.simbolo, "sabre_parenteses") && terminaProgramaSintatico == 0)
+                {
+                    token = analiseLex.AnalisadorLexical(conteudo);
+                    Analisa_expressao(conteudo);
+                    // token = analiseLex.AnalisadorLexical(conteudo);
+                    // token = analiseLex.AnalisadorLexical(conteudo);
+                    // token = analiseLex.AnalisadorLexical(conteudo);
 
-            }
-            else if (string.Equals(token.simbolo, "snumero"))
-            {
-                token = analiseLex.AnalisadorLexical(conteudo);
-            }
-            else if (string.Equals(token.simbolo, "snao"))
-            {
-                token = analiseLex.AnalisadorLexical(conteudo);
-                Analisa_fator(conteudo);
-            }
-            else if (string.Equals(token.simbolo, "sabre_parenteses"))
-            {
-                token = analiseLex.AnalisadorLexical(conteudo);
-                Analisa_expressao(conteudo);
-               // token = analiseLex.AnalisadorLexical(conteudo);
-               // token = analiseLex.AnalisadorLexical(conteudo);
-               // token = analiseLex.AnalisadorLexical(conteudo);
+                    if (string.Equals(token.simbolo, "sfecha_parenteses") && terminaProgramaSintatico == 0)
+                    {
+                        token = analiseLex.AnalisadorLexical(conteudo);
+                    }
+                    else
+                    {
+                        TrataErroSintatico("Erro: esperado ')'");
 
-                if (string.Equals(token.simbolo, "sfecha_parenteses"))
+                        //  MessageBox.Show("Erro (Analisa_fator): Esperado fecha_parenteses");
+                    }
+                }
+                else if (string.Equals(token.lexema, "verdadeiro") || string.Equals(token.lexema, "falso") && terminaProgramaSintatico == 0)
                 {
                     token = analiseLex.AnalisadorLexical(conteudo);
                 }
                 else
                 {
-                    MessageBox.Show("Erro (Analisa_fator): Esperado fecha_parenteses");
+                    TrataErroSintatico("Erro: operador lógico extra");
+
+                    //MessageBox.Show("Erro (Analisa_fator): Possivel erro com operador lógico extra");
                 }
-            }
-            else if (string.Equals(token.lexema, "verdadeiro") || string.Equals(token.lexema, "falso"))
-            {
-                token = analiseLex.AnalisadorLexical(conteudo);
-            }
-            else
-            {
-                MessageBox.Show("Erro (Analisa_fator): Possivel erro com operador lógico extra");
             }
         }
 
         private void Analisa_atribuicao(string conteudo)
         {
-            token = analiseLex.AnalisadorLexical(conteudo);
-            Analisa_expressao(conteudo);
-
+            if (terminaProgramaSintatico == 0)
+            {
+                token = analiseLex.AnalisadorLexical(conteudo);
+                Analisa_expressao(conteudo);
+            }
         }
 
     }
