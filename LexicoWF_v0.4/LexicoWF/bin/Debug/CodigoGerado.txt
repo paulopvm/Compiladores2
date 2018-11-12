@@ -1,0 +1,20 @@
+ START  
+
+ ALLOC 0 3
+
+ JMP 0 
+
+1 NULL  
+
+ ALLOC 3 2
+
+ ALLOC 5 1
+
+ JMPF 2 
+
+ STR x 
+
+ CALL 2 
+
+ HLT  
+

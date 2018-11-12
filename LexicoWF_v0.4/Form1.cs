@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.IO;
 using System.Drawing;
 using System.Linq;
 using System.Text;
@@ -758,6 +759,8 @@ namespace LexicoWF
             {
                 //MessageBox.Show(richTextBox1.Text);
                 conteudo = richTextBox1.Text;
+                File.WriteAllText("CodigoGerado.txt", String.Empty);
+
                 //MessageBox.Show(conteudo);
                 analiseSint.Main(conteudo);
                 //token = AnalisadorLexical(conteudo);
@@ -786,17 +789,27 @@ namespace LexicoWF
     {
         private Tokens token;
         public Lexico analiseLex = new Lexico();
-       // public DataGridView dt_erros;
-       private int terminaProgramaSintatico = 0;
+        // public DataGridView dt_erros;
+        public int rotulo; //geracod
+        public int ultimoalloc = 0; //geracod
+        public int totalVar = 0; //geracod
+        public int espacoMemoria = 0; //geracod
+        public int checaProcedimento = 0; //geracod
+        public List <string> auxExpressao = new List<string>();
+        string codigoGerado = @"CodigoGerado.txt"; //geracod
+
+
+        private int terminaProgramaSintatico = 0;
         public void Main(string conteudo)
         {
             //dt_erros = dt2;
-
+                rotulo = 1; //geracod
                 token = analiseLex.AnalisadorLexical(conteudo);
 
                 if (string.Equals(token.simbolo, "sprograma"))
                 {
-                    token = analiseLex.AnalisadorLexical(conteudo);
+                 Gera("", "START", "", ""); //geracod
+                token = analiseLex.AnalisadorLexical(conteudo);
 
                     if (string.Equals(token.simbolo, "sidentificador"))
                     {
@@ -809,7 +822,7 @@ namespace LexicoWF
                             if (string.Equals(token.simbolo, "sponto"))
                             {
                                 TrataErroSintatico("Programa Terminou");
-                                //MessageBox.Show("Acabou programa, SUCESSO");
+                                Gera("", "HLT", "", ""); //geracod
                             }
                             else
                             {
@@ -839,6 +852,34 @@ namespace LexicoWF
             
         }
 
+        //Geração de Código - INICIO
+        
+        private void Gera(string s1, string s2, string s3, string s4)
+        {
+            string comando;
+
+            comando = s1 + ' ' + s2 + ' ' + s3 + ' ' + s4;
+
+            if (!File.Exists(codigoGerado))
+            {
+                File.Create(codigoGerado);
+                TextWriter tw = new StreamWriter(codigoGerado);
+                tw.WriteLine(comando + "\n");
+                tw.Close();
+            }
+            else if (File.Exists(codigoGerado))
+            {
+                using (var tw = new StreamWriter(codigoGerado, true))
+                {
+                    tw.WriteLine(comando + "\n");
+                }
+            }
+        }
+               
+
+
+        //Geração de Código - FIM
+
         private void TrataErroSintatico(string mensagem)
         {
             if (terminaProgramaSintatico == 0)
@@ -856,7 +897,7 @@ namespace LexicoWF
         private void Analisa_bloco(string conteudo)
         {
 
-                token = analiseLex.AnalisadorLexical(conteudo);
+            token = analiseLex.AnalisadorLexical(conteudo);
             if (terminaProgramaSintatico == 0)
                 Analisa_et_variaveis(conteudo);
             if(terminaProgramaSintatico==0)
@@ -870,6 +911,8 @@ namespace LexicoWF
         {
             if (string.Equals(token.simbolo, "svar") && terminaProgramaSintatico == 0)
             {
+                totalVar = 0;   //geracod
+
                 token = analiseLex.AnalisadorLexical(conteudo);
 
                 if (string.Equals(token.simbolo, "sidentificador") && terminaProgramaSintatico == 0)
@@ -880,8 +923,11 @@ namespace LexicoWF
 
                         if (string.Equals(token.simbolo, "sponto_virgula") && terminaProgramaSintatico == 0)
                         {
+                            Gera("", "ALLOC", espacoMemoria.ToString(), totalVar.ToString()); //geracod
+                            ultimoalloc = totalVar;
+                            espacoMemoria = espacoMemoria + totalVar; //lembrar de fazer "menos" com DALLOC
+                            totalVar = 0;
                             token = analiseLex.AnalisadorLexical(conteudo);
-
                         }
                         else
                         {
@@ -906,6 +952,7 @@ namespace LexicoWF
             {
                 if (string.Equals(token.simbolo, "sidentificador") && terminaProgramaSintatico == 0)
                 {
+                    totalVar++;  //geracod
                     token = analiseLex.AnalisadorLexical(conteudo);
 
                     if (string.Equals(token.simbolo, "svirgula") || string.Equals(token.simbolo, "sdoispontos") && terminaProgramaSintatico == 0)
@@ -955,16 +1002,20 @@ namespace LexicoWF
         {
             if (string.Equals(token.simbolo, "sinicio") && terminaProgramaSintatico == 0)
             {
+                if (checaProcedimento == 0)
+                {
+                    Gera("0", "NULL", "", ""); //geracod, marca inicio main
+                }
                 token = analiseLex.AnalisadorLexical(conteudo);
-                //MessageBox.Show("1 Analisa_comandos: " + token.simbolo, token.lexema);
                 Analisa_comando_simples(conteudo);
-                //MessageBox.Show("2 Analisa_comandos: " + token.simbolo, token.lexema);
 
                 while(!(string.Equals(token.simbolo, "sfim")) && terminaProgramaSintatico == 0)
                 {
                     if (string.Equals(token.simbolo, "sponto_virgula") && terminaProgramaSintatico == 0)
                     {
+                        //Gera("", "DALLOC", ultimoalloc.ToString(), ""); //geracod
                         token = analiseLex.AnalisadorLexical(conteudo);
+                        checaProcedimento = 0; //geracod acabou procedimento
                         if (!(string.Equals(token.simbolo, "sfim")) && terminaProgramaSintatico == 0)
                         {
                             Analisa_comando_simples(conteudo);
@@ -998,18 +1049,22 @@ namespace LexicoWF
             }
             else if (string.Equals(token.simbolo, "sse") && terminaProgramaSintatico == 0)
             {
+                checaProcedimento = 1;
                 Analisa_se(conteudo);
             }
             else if (string.Equals(token.simbolo, "senquanto") && terminaProgramaSintatico == 0)
             {
+                checaProcedimento = 1;
                 Analisa_enquanto(conteudo);
             }
             else if (string.Equals(token.simbolo, "sleia") && terminaProgramaSintatico == 0)
             {
+                checaProcedimento = 1;
                 Analisa_leia(conteudo);
             }
             else if (string.Equals(token.simbolo, "sescreva") && terminaProgramaSintatico == 0)
             {
+                checaProcedimento = 1;
                 Analisa_escreva(conteudo);
             }
             else
@@ -1021,14 +1076,17 @@ namespace LexicoWF
 
         private void Analisa_atrib_chprocedimento(string conteudo)
         {
+            string aux;
+            aux = token.lexema;
             token = analiseLex.AnalisadorLexical(conteudo);
             if (string.Equals(token.simbolo, "satribuicao") && terminaProgramaSintatico == 0)
             {
                 Analisa_atribuicao(conteudo);
+                Gera("", "STR", aux, "");
             }
             else
             {
-
+                Gera("", "CALL", rotulo.ToString(), ""); //geracod, usar rotulo no paremetro do CALL?
                 //Chamada_procedimento(conteudo) //esse que nao existe? 
             }
         }
@@ -1107,20 +1165,27 @@ namespace LexicoWF
 
         private void Analisa_enquanto(string conteudo)
         {
-            //MessageBox.Show("1 Enquanto " + token.simbolo, token.lexema);
+            int auxrot1, auxrot2;          //geracod
+            auxrot1 = rotulo;           //geracod
+            Gera(rotulo.ToString(), "NULL", "", ""); //geracod
+            rotulo++;   //geracod
             token = analiseLex.AnalisadorLexical(conteudo);
-            //MessageBox.Show("2 Enquanto " + token.simbolo, token.lexema);
             Analisa_expressao(conteudo);
 
-            //MessageBox.Show("4 Enquanto " + token.simbolo, token.lexema);
 
             if (string.Equals(token.simbolo, "sfaca") && terminaProgramaSintatico == 0)
             {
+                auxrot2 = rotulo; //geracod
+                Gera("", "JMPF", rotulo.ToString(), ""); //geracod
+                rotulo++; //geracod
+
                 token = analiseLex.AnalisadorLexical(conteudo);
-                //MessageBox.Show("4 Enquanto " + token.simbolo, token.lexema);
 
                 Analisa_comando_simples(conteudo);
-                //MessageBox.Show("5 Enquanto " + token.simbolo, token.lexema);
+
+                Gera("", "JMP", auxrot1.ToString(), ""); //geracod
+
+                Gera(auxrot2.ToString(), "NULL", "", ""); //geracod
 
             }
             else
@@ -1131,10 +1196,141 @@ namespace LexicoWF
             }
         }
 
+
+        static void convertePost(ref List<string> infix)
+        {
+            Stack<string> s = new Stack<string>();
+            List<string> outputList = new List<string>();
+            int n;
+            char g;
+            foreach (string c in infix)
+            {
+                
+                if (int.TryParse(c.ToString(), out n) || char.TryParse(c.ToString(), out g))
+                {
+                    if (!isOperator(c) && c != "(" && c != ")")
+                    {
+                        outputList.Add(c);
+                    }
+                }
+                if (c == "(")
+                {
+                    s.Push(c);
+                }
+                if (c == ")")
+                {
+                    while (s.Count != 0 && s.Peek() != "(")
+                    {
+                        outputList.Add(s.Pop());
+                    }
+                    s.Pop();
+                }
+                if (isOperator(c) == true)
+                {
+                    while (s.Count != 0 && Priority(s.Peek()) >= Priority(c))
+                    {
+                        outputList.Add(s.Pop());
+                    }
+                    s.Push(c);
+                }
+            }
+            while (s.Count != 0)//if any operators remain in the stack, pop all & add to output list until stack is empty 
+            {
+                outputList.Add(s.Pop());
+            }
+            for (int i = 0; i < outputList.Count; i++)
+            {
+                //SWITCH 2200 REAIS CASE
+                System.Console.WriteLine("{0}", outputList[i]);
+            }
+        }
+
+        static int Priority(string c)
+        {
+            if (c == "*" || c == "div")
+            {
+                return 4;
+            }
+            else if (c == "+" || c == "-")
+            {
+                return 3;
+            }
+            else if (c == ">" || c == "<" || c == "<=" || c == ">=" || c == "=" || c == "!=")
+            {
+                return 2;
+            }
+            else if (c == "e")
+            {
+                return 1;
+            }
+            else
+            {
+                return 0;
+            }
+        }
+        static bool isOperator(string ch)
+        {
+            if (ch == "+" || ch == "-" || ch == "nao" || ch == "*" || ch == "div" || ch == ">" || ch == "<" || ch == "<=" || ch == ">=" || ch == "=" || ch == "!=" || ch == "e" || ch == "ou")
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        /*static bool converte(ref List<string> infix)
+        {
+            int prio = 0;
+            List<string> postfix = new List<string>();
+            Stack<String> s1 = new Stack<String>();
+
+            for (int i = 0; i < infix.Count(); i++)
+            {
+                string ch = infix[i];
+                if(ch == "+" || ch == "-" || ch == "nao" || ch == "*" || ch == "div" || ch == ">" || ch == "<" || ch == "<=" || ch == ">=" || ch == "=" || ch == "!=" || ch == "e" || ch == "ou" || ch == "(" || ch == ")")
+                {
+                    if (s1.Count <= 0)
+                    {
+                        s1.Push(ch);
+                    }
+                    else
+                    {
+                        if (ch == "(")
+                        {
+                            s1.Push(ch);
+                        }
+                        if(ch == ")")
+                        {
+                            for (int j = 0; j < s1.Count && infix[i] != "("; j++)
+                            {
+                                postfix.Add(s1.Pop());
+                            }
+                            s1.Pop();
+                        }
+
+                    }
+
+                 
+                }
+            }
+        }*/
+
         private void Analisa_se(string conteudo)
         {
+            string infix = "";
+            string postfix = "";
             token = analiseLex.AnalisadorLexical(conteudo);
             Analisa_expressao(conteudo);
+            for (int index = 0; index < auxExpressao.Count(); index++)
+            {
+                //MessageBox.Show(auxExpressao[index]);
+                infix = infix + auxExpressao[index];
+            }
+
+            convertePost(ref auxExpressao);
+
             //token = analiseLex.AnalisadorLexical(conteudo);
             //token = analiseLex.AnalisadorLexical(conteudo);
             //token = analiseLex.AnalisadorLexical(conteudo);
@@ -1142,11 +1338,14 @@ namespace LexicoWF
 
             if (string.Equals(token.simbolo, "sentao") && terminaProgramaSintatico == 0)
             {
+                Gera("", "JMPF", rotulo.ToString(), ""); //geracod
                 token = analiseLex.AnalisadorLexical(conteudo);
                 Analisa_comando_simples(conteudo);
 
                 if (string.Equals(token.simbolo, "ssenao"))
                 {
+                    Gera("", "JMPF", rotulo.ToString(), ""); //geracod
+
                     token = analiseLex.AnalisadorLexical(conteudo);
                     Analisa_comando_simples(conteudo);
                 }
@@ -1161,8 +1360,21 @@ namespace LexicoWF
 
         private void Analisa_subrotinas(string conteudo)
         {
-            while (string.Equals(token.simbolo, "sprocedimento") || string.Equals(token.simbolo, "sfuncao") && terminaProgramaSintatico == 0)
+            /*int auxrot, flagSubRotina; //geracod
+            //flagSubRotina = 1;  //geracod
+            //auxrot = rotulo; //geracod
+            if (string.Equals(token.simbolo, "sprocedimento") || string.Equals(token.simbolo, "sfuncao") && terminaProgramaSintatico == 0)
             {
+                auxrot = rotulo; //geracod
+                Gera("", "JMP", rotulo.ToString(), "");
+                rotulo++;
+                flagSubRotina = 1;
+            }*/
+
+
+
+                while (string.Equals(token.simbolo, "sprocedimento") || string.Equals(token.simbolo, "sfuncao") && terminaProgramaSintatico == 0){
+
 
                 if (string.Equals(token.simbolo, "sprocedimento") && terminaProgramaSintatico == 0)
                 {
@@ -1185,6 +1397,11 @@ namespace LexicoWF
                    // MessageBox.Show("Erro (Analisa_subrotinas): Esperado um ponto_virgula ", token.simbolo);
                 }
             }
+
+            /*if(flagSubRotina == 1)
+            {
+                Gera(auxrot.ToString(), "NULL", "", "");
+            }*/
         }
 
         private void Analisa_declaracao_procedimento(string conteudo)
@@ -1192,6 +1409,11 @@ namespace LexicoWF
             token = analiseLex.AnalisadorLexical(conteudo);
             if (string.Equals(token.simbolo, "sidentificador") && terminaProgramaSintatico == 0)
             {
+                Gera("", "JMP", "0", ""); //geracod VAI PRO INICIO DO PROGRAMA
+                Gera(rotulo.ToString(), "NULL","",""); //geracod
+                checaProcedimento = 1;
+                rotulo++;//geracod
+
                 token = analiseLex.AnalisadorLexical(conteudo);
                 if (string.Equals(token.simbolo, "sponto_virgula") && terminaProgramaSintatico == 0)
                 {
@@ -1253,10 +1475,12 @@ namespace LexicoWF
 
         private void Analisa_expressao(string conteudo)
         {
+            //auxExpressao.Add(token.lexema);
             Analisa_expressao_simples(conteudo);
 
             if (string.Equals(token.simbolo, "smaior") || string.Equals(token.simbolo, "smaiorig") || string.Equals(token.simbolo, "sig") || string.Equals(token.simbolo, "smenor") || string.Equals(token.simbolo, "smenorig") || string.Equals(token.simbolo, "sdif") && terminaProgramaSintatico == 0)
             {
+                auxExpressao.Add(token.lexema);
                 token = analiseLex.AnalisadorLexical(conteudo);
                 Analisa_expressao_simples(conteudo);
             }
@@ -1270,11 +1494,13 @@ namespace LexicoWF
 
                 if (string.Equals(token.simbolo, "smais") || string.Equals(token.simbolo, "smenos") && terminaProgramaSintatico == 0)
                 {
+                    auxExpressao.Add(token.lexema);
                     token = analiseLex.AnalisadorLexical(conteudo);
                 }
                 Analisa_termo(conteudo);
                 while (string.Equals(token.simbolo, "smais") || string.Equals(token.simbolo, "smenos") || string.Equals(token.simbolo, "sou") && terminaProgramaSintatico == 0 )
                 {
+                    auxExpressao.Add(token.lexema);
                     token = analiseLex.AnalisadorLexical(conteudo);
                     Analisa_termo(conteudo);
                 }
@@ -1288,6 +1514,7 @@ namespace LexicoWF
                 Analisa_fator(conteudo);
                 while (string.Equals(token.simbolo, "smult") || string.Equals(token.simbolo, "sdiv") || string.Equals(token.simbolo, "se") && terminaProgramaSintatico == 0)
                 {
+                    auxExpressao.Add(token.lexema);
                     token = analiseLex.AnalisadorLexical(conteudo);
                     Analisa_fator(conteudo);
                 }
@@ -1301,20 +1528,24 @@ namespace LexicoWF
             {
                 if (string.Equals(token.simbolo, "sidentificador") && terminaProgramaSintatico == 0)
                 {
+                    auxExpressao.Add(token.lexema);
                     token = analiseLex.AnalisadorLexical(conteudo); //!!!!
 
                 }
                 else if (string.Equals(token.simbolo, "snumero") && terminaProgramaSintatico == 0)
                 {
+                    auxExpressao.Add(token.lexema);
                     token = analiseLex.AnalisadorLexical(conteudo);
                 }
                 else if (string.Equals(token.simbolo, "snao") && terminaProgramaSintatico == 0)
                 {
+                    auxExpressao.Add(token.lexema);
                     token = analiseLex.AnalisadorLexical(conteudo);
                     Analisa_fator(conteudo);
                 }
                 else if (string.Equals(token.simbolo, "sabre_parenteses") && terminaProgramaSintatico == 0)
                 {
+                    auxExpressao.Add(token.lexema);
                     token = analiseLex.AnalisadorLexical(conteudo);
                     Analisa_expressao(conteudo);
                     // token = analiseLex.AnalisadorLexical(conteudo);
@@ -1323,6 +1554,7 @@ namespace LexicoWF
 
                     if (string.Equals(token.simbolo, "sfecha_parenteses") && terminaProgramaSintatico == 0)
                     {
+                        auxExpressao.Add(token.lexema);
                         token = analiseLex.AnalisadorLexical(conteudo);
                     }
                     else
