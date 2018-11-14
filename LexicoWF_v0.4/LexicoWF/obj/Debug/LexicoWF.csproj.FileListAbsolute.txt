@@ -98,3 +98,23 @@ C:\Users\Paulo Oliveira\Desktop\Visual studio\LexicoWF_v0.4\LexicoWF\obj\Debug\L
 C:\Users\Paulo Oliveira\Desktop\Visual studio\LexicoWF_v0.4\LexicoWF\obj\Debug\LexicoWF.csproj.CoreCompileInputs.cache
 C:\Users\Paulo Oliveira\Desktop\Visual studio\LexicoWF_v0.4\LexicoWF\obj\Debug\LexicoWF.exe
 C:\Users\Paulo Oliveira\Desktop\Visual studio\LexicoWF_v0.4\LexicoWF\obj\Debug\LexicoWF.pdb
+C:\Users\Paulo\Desktop\git_comp\Compiladores2\LexicoWF_v0.4\LexicoWF\bin\Debug\LexicoWF.exe.config
+C:\Users\Paulo\Desktop\git_comp\Compiladores2\LexicoWF_v0.4\LexicoWF\bin\Debug\LexicoWF.exe
+C:\Users\Paulo\Desktop\git_comp\Compiladores2\LexicoWF_v0.4\LexicoWF\bin\Debug\LexicoWF.pdb
+C:\Users\Paulo\Desktop\git_comp\Compiladores2\LexicoWF_v0.4\LexicoWF\obj\Debug\LexicoWF.csprojAssemblyReference.cache
+C:\Users\Paulo\Desktop\git_comp\Compiladores2\LexicoWF_v0.4\LexicoWF\obj\Debug\LexicoWF.Lexico.resources
+C:\Users\Paulo\Desktop\git_comp\Compiladores2\LexicoWF_v0.4\LexicoWF\obj\Debug\LexicoWF.Properties.Resources.resources
+C:\Users\Paulo\Desktop\git_comp\Compiladores2\LexicoWF_v0.4\LexicoWF\obj\Debug\LexicoWF.csproj.GenerateResource.cache
+C:\Users\Paulo\Desktop\git_comp\Compiladores2\LexicoWF_v0.4\LexicoWF\obj\Debug\LexicoWF.csproj.CoreCompileInputs.cache
+C:\Users\Paulo\Desktop\git_comp\Compiladores2\LexicoWF_v0.4\LexicoWF\obj\Debug\LexicoWF.exe
+C:\Users\Paulo\Desktop\git_comp\Compiladores2\LexicoWF_v0.4\LexicoWF\obj\Debug\LexicoWF.pdb
+C:\Users\Paulo Oliveira\Desktop\Git_compiladores\Compiladores2\LexicoWF_v0.4\LexicoWF\bin\Debug\LexicoWF.exe.config
+C:\Users\Paulo Oliveira\Desktop\Git_compiladores\Compiladores2\LexicoWF_v0.4\LexicoWF\bin\Debug\LexicoWF.exe
+C:\Users\Paulo Oliveira\Desktop\Git_compiladores\Compiladores2\LexicoWF_v0.4\LexicoWF\bin\Debug\LexicoWF.pdb
+C:\Users\Paulo Oliveira\Desktop\Git_compiladores\Compiladores2\LexicoWF_v0.4\LexicoWF\obj\Debug\LexicoWF.csprojResolveAssemblyReference.cache
+C:\Users\Paulo Oliveira\Desktop\Git_compiladores\Compiladores2\LexicoWF_v0.4\LexicoWF\obj\Debug\LexicoWF.Lexico.resources
+C:\Users\Paulo Oliveira\Desktop\Git_compiladores\Compiladores2\LexicoWF_v0.4\LexicoWF\obj\Debug\LexicoWF.Properties.Resources.resources
+C:\Users\Paulo Oliveira\Desktop\Git_compiladores\Compiladores2\LexicoWF_v0.4\LexicoWF\obj\Debug\LexicoWF.csproj.GenerateResource.cache
+C:\Users\Paulo Oliveira\Desktop\Git_compiladores\Compiladores2\LexicoWF_v0.4\LexicoWF\obj\Debug\LexicoWF.csproj.CoreCompileInputs.cache
+C:\Users\Paulo Oliveira\Desktop\Git_compiladores\Compiladores2\LexicoWF_v0.4\LexicoWF\obj\Debug\LexicoWF.exe
+C:\Users\Paulo Oliveira\Desktop\Git_compiladores\Compiladores2\LexicoWF_v0.4\LexicoWF\obj\Debug\LexicoWF.pdb

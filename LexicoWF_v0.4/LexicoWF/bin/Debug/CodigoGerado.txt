@@ -1,0 +1,10 @@
+ START  
+
+ ALLOC 0 4
+
+0 NULL  
+
+ STR a 
+
+ HLT  
+
